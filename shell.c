@@ -33,7 +33,7 @@ void loop() {
         printf("> ");
         line = read_line();
         args = split_lines(line);
-        status = dash_launch(args);
+        status = dash_execute(args);
 
         // free memory used by pointers
         free(line);
