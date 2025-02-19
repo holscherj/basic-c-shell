@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #define TOK_DELIM " \t\r\n"
 #define RED "\033[0;31m"
@@ -10,14 +13,6 @@ char *read_line();
 char **split_line(char *);
 int dash_exit(char **);
 int dash_execute(char **);
-
-/**
- * Program main entry point
- */
-int main() {
-    loop();
-    return 0;
-}
 
 /**
  * The driving function of the terminal loop
@@ -32,7 +27,7 @@ void loop() {
         // get user input
         printf("> ");
         line = read_line();
-        args = split_lines(line);
+        args = split_line(line);
         status = dash_execute(args);
 
         // free memory used by pointers
@@ -63,7 +58,7 @@ char *read_line() {
     while (1) {
         c = getchar();
         // terminate buffer if end of file or newline is entered
-        if(c == EOF || c == "\n") {
+        if(c == EOF || c == '\n') {
             buffer[position] = '\0';
             return buffer;
         } else {
@@ -137,6 +132,10 @@ int dash_exit(char **args) {
  * A function to execute the user's commands
  */
 int dash_execute(char **args) {
+    if (args[0] == NULL) {
+        return 1;
+    }
+
     pid_t cpid;
     int status;
 
@@ -156,5 +155,14 @@ int dash_execute(char **args) {
     } else {
         waitpid(cpid, &status, WUNTRACED);
     }
+
     return 1;
+}
+
+/**
+ * Program main entry point
+ */
+int main() {
+    loop();
+    return 0;
 }
